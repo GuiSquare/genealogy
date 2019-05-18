@@ -54,6 +54,10 @@ module Genealogy
         raise ArgumentError, "ineligibility option must be one among :pedigree, :pedigree_and_dates or false"
       end
 
+      class_attribute :scoped_at
+      
+      self.scoped_at = options[:scoped_at]
+
       ## limit_ages
       if ineligibility_level >= PEDIGREE_AND_DATES
         DEFAULTS[:limit_ages].each do |age,v|

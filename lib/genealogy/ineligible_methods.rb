@@ -18,7 +18,7 @@ module Genealogy
           ineligibles = []
           ineligibles |= descendants | [self] | gclass.send("#{unexpected_sex}s") if gclass.ineligibility_level >= PEDIGREE
           if gclass.ineligibility_level >= PEDIGREE_AND_DATES  and birth_range
-            ineligibles |= (gclass.all - ineligibles).find_all do |indiv|
+            ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
               !indiv.can_procreate_during?(birth_range)
             end
           end
@@ -46,7 +46,7 @@ module Genealogy
           elsif gclass.ineligibility_level >= PEDIGREE
             ineligibles |= descendants | siblings | [self] | gclass.send("#{unexpected_sex}s")
             if gclass.ineligibility_level >= PEDIGREE_AND_DATES
-              ineligibles |= (gclass.all - ineligibles).find_all do |indiv|
+              ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
                 !indiv.can_procreate_during?(send("#{parent_role}_birth_range"))
               end
             end
@@ -67,9 +67,9 @@ module Genealogy
     # @return [Array]
     def ineligible_children
       ineligibles = []
-      ineligibles |= ancestors | children | siblings | [self] | gclass.all_with(SEX2PARENT[ssex]) if gclass.ineligibility_level >= PEDIGREE
+      ineligibles |= ancestors | children | siblings | [self] | gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(SEX2PARENT[ssex]) if gclass.ineligibility_level >= PEDIGREE
       if gclass.ineligibility_level >= PEDIGREE_AND_DATES and fertility_range
-        ineligibles |= (gclass.all - ineligibles).find_all{ |indiv| !can_procreate_during?(indiv.birth_range)}
+        ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all{ |indiv| !can_procreate_during?(indiv.birth_range)}
       end
       ineligibles
     end
@@ -83,8 +83,8 @@ module Genealogy
       ineligibles = []
       if gclass.ineligibility_level >= PEDIGREE
         ineligibles |= ancestors | descendants | siblings | [self]
-        ineligibles |= (father ? gclass.all_with(:father).where("father_id != ?", father) : [])
-        ineligibles |= (mother ? gclass.all_with(:mother).where("mother_id != ?", mother) : [])
+        ineligibles |= (father ? gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(:father).where("father_id != ?", father) : [])
+        ineligibles |= (mother ? gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(:mother).where("mother_id != ?", mother) : [])
       end
       if gclass.ineligibility_level >= PEDIGREE_AND_DATES
         [:father,:mother].each do |parent|
@@ -93,7 +93,7 @@ module Genealogy
             ineligibles |= p.ineligible_children
           elsif parent_fertility_range = send("#{parent}_fertility_range")
             # if it's possible to estimate parent's fertility period
-            remainings = gclass.all - ineligibles
+            remainings = gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles
             # includes all individuals whose estimated birth period doesn't overlap parent's fertility period
             ineligibles |= remainings.find_all do |indiv|
               if ibr = indiv.birth_range
@@ -123,7 +123,7 @@ module Genealogy
         if gclass.ineligibility_level >= PEDIGREE
           ineligibles |= p.ineligible_children
           ineligibles |= send("#{OPPOSITELINEAGE[lineage]}_half_siblings") # other lineage half siblings would become full siblings so they cannot be current lineage half sibling
-          ineligibles |= gclass.all_with(parent)
+          ineligibles |= gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(parent)
         end
         if gclass.ineligibility_level >= PEDIGREE_AND_DATES
           if p
@@ -131,7 +131,7 @@ module Genealogy
             ineligibles |= p.ineligible_children
           elsif parent_fertility_range = send("#{parent}_fertility_range")
             # if it's possible to estimate parent's fertility period
-            remainings = gclass.all - ineligibles
+            remainings = gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles
             # includes all individuals whose estimated birth period doesn't overlap parent's fertility period
             ineligibles |= remainings.find_all do |indiv|
               if ibr = indiv.birth_range
