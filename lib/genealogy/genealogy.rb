@@ -39,7 +39,9 @@ module Genealogy
       self.extend(Genealogy::ComplexQueryMethods::ClassMethods)
 
       class_attribute :ineligibility_level, instance_accessor: false
+        
       self.ineligibility_level = case options[:ineligibility]
+
       when :pedigree
         PEDIGREE
       when true
@@ -56,6 +58,8 @@ module Genealogy
 
       class_attribute :scoped_at
       
+      raise ArgumentError, "scoped_at option must be set" unless options[:scoped_at]
+
       self.scoped_at = options[:scoped_at]
 
       ## limit_ages

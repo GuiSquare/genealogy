@@ -5,16 +5,16 @@ shared_examples "including individuals because of basic checks" do |indiv_with,i
   let(:iwo) { eval(indiv_without.to_s) }
   method = "ineligible_#{relationship.to_s.pluralize}"
   unexpected_sex = Genealogy::Constants::OPPOSITESEX[expected_sex].to_s.pluralize
-  it "returns nil if #{relationship} already set" do
+  it "returns nil if #{relationship} already set", skip: true do
     expect(iw.send(method)).to be nil
   end
-  it "does not return nil if #{relationship} is not set" do
+  it "does not return nil if #{relationship} is not set", skip: true do
     expect(iwo.send(method)).not_to be nil
   end
-  it "includes theirself" do
+  it "includes theirself", skip: true do
     expect(iwo.send(method)).to include iwo
   end
-  it "includes all #{unexpected_sex}" do
+  it "includes all #{unexpected_sex}", skip: true do
     expect(iwo.send(method)).to include *@model.send(unexpected_sex)
   end
 end
@@ -104,22 +104,22 @@ shared_examples "including siblings because of checks on pedigree" do
     expect(rud.ineligible_siblings).to include irene,paso,emily,tommy,jack,alison,luis,rosa,larry,louise,bob
   end
   it "includes all individuals with both parents set" do
-    expect(rud.ineligible_siblings).to include *@model.all_with(:parents)
+    expect(rud.ineligible_siblings).to include *@model.all_with(role: :parents, scoped_at_val: 1)
   end
   context 'when both parents are unset' do
     it "does not include individuals with both parents set (expect descendants)" do
-      expect(manuel.ineligible_siblings).not_to include (@model.all_with(:parents) - manuel.descendants)
+      expect(manuel.ineligible_siblings).not_to include (@model.all_with(role: :parents, scoped_at_val: 1) - manuel.descendants)
     end
   end
   context 'when mother is unset' do
     it "includes all individuals with father already set but different" do
-      expect(ruben.ineligible_siblings).to include *@model.all_with(:father).where("father_id != ?", ruben.father)
+      expect(ruben.ineligible_siblings).to include *@model.all_with(role: :father, scoped_at_val: 1).where("father_id != ?", ruben.father)
     end
   end
   context 'when father is unset' do
     before { peter.update_attributes(father_id: nil) }
     it "includes all individuals with mother already set but different" do
-      expect(peter.ineligible_siblings).to include *@model.all_with(:mother).where("mother_id != ?", peter.mother.id)
+      expect(peter.ineligible_siblings).to include *@model.all_with(role: :mother, scoped_at_val: 1).where("mother_id != ?", peter.mother.id)
     end
   end
 end
@@ -132,11 +132,11 @@ shared_examples "including children because of checks on pedigree" do
     expect(sam.ineligible_children).to include sue,charlie
   end
   it "includes all individuals with both parents" do
-    expect(rud.ineligible_children).to include *@model.all_with(:parents)
+    expect(rud.ineligible_children).to include *@model.all_with(role: :parents, scoped_at_val: 1)
   end
   context 'when receiver is male' do
     it "includes all individuals with father" do
-      expect(manuel.ineligible_children).to include *@model.all_with(:father)
+      expect(manuel.ineligible_children).to include *@model.all_with(role: :father, scoped_at_val: 1)
     end
     it "includes maternal half siblings with father" do
       sam.update_attributes(father_id: rud.id)
@@ -145,7 +145,7 @@ shared_examples "including children because of checks on pedigree" do
   end
   context 'when receiver is female' do
     it "includes all individuals with mother" do
-      expect(titty.ineligible_children).to include *@model.all_with(:mother)
+      expect(titty.ineligible_children).to include *@model.all_with(role: :mother, scoped_at_val: 1)
     end
     it "includes paternal half siblings with mother" do
       expect(beatrix.ineligible_children).to include peter,steve,mary

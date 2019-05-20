@@ -16,7 +16,7 @@ module Genealogy
       define_method "ineligible_#{parent_role}s" do
         unless self.send(parent_role)
           ineligibles = []
-          ineligibles |= descendants | [self] | gclass.send("#{unexpected_sex}s") if gclass.ineligibility_level >= PEDIGREE
+          ineligibles |= descendants | [self] | gclass.send("#{unexpected_sex}s", { scoped_at_val: self.send("#{gclass.scoped_at}")}) if gclass.ineligibility_level >= PEDIGREE
           if gclass.ineligibility_level >= PEDIGREE_AND_DATES  and birth_range
             ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
               !indiv.can_procreate_during?(birth_range)
@@ -44,7 +44,7 @@ module Genealogy
           if parent = send(parent_role)
             ineligibles |= parent.send("ineligible_#{grandparent2parent_role}s")
           elsif gclass.ineligibility_level >= PEDIGREE
-            ineligibles |= descendants | siblings | [self] | gclass.send("#{unexpected_sex}s")
+            ineligibles |= descendants | siblings | [self] | gclass.send("#{unexpected_sex}s", { scoped_at_val: self.send("#{gclass.scoped_at}")})
             if gclass.ineligibility_level >= PEDIGREE_AND_DATES
               ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
                 !indiv.can_procreate_during?(send("#{parent_role}_birth_range"))
@@ -67,7 +67,7 @@ module Genealogy
     # @return [Array]
     def ineligible_children
       ineligibles = []
-      ineligibles |= ancestors | children | siblings | [self] | gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(SEX2PARENT[ssex]) if gclass.ineligibility_level >= PEDIGREE
+      ineligibles |= ancestors | children | siblings | [self] | gclass.all_with(role: SEX2PARENT[ssex], scoped_at_val: self.send("#{gclass.scoped_at}")) if gclass.ineligibility_level >= PEDIGREE
       if gclass.ineligibility_level >= PEDIGREE_AND_DATES and fertility_range
         ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all{ |indiv| !can_procreate_during?(indiv.birth_range)}
       end
@@ -83,8 +83,8 @@ module Genealogy
       ineligibles = []
       if gclass.ineligibility_level >= PEDIGREE
         ineligibles |= ancestors | descendants | siblings | [self]
-        ineligibles |= (father ? gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(:father).where("father_id != ?", father) : [])
-        ineligibles |= (mother ? gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(:mother).where("mother_id != ?", mother) : [])
+        ineligibles |= (father ? gclass.all_with(role: :father, scoped_at_val: self.send("#{gclass.scoped_at}")).where("father_id != ?", father) : [])
+        ineligibles |= (mother ? gclass.all_with(role: :mother, scoped_at_val: self.send("#{gclass.scoped_at}")).where("mother_id != ?", mother) : [])
       end
       if gclass.ineligibility_level >= PEDIGREE_AND_DATES
         [:father,:mother].each do |parent|
@@ -123,7 +123,7 @@ module Genealogy
         if gclass.ineligibility_level >= PEDIGREE
           ineligibles |= p.ineligible_children
           ineligibles |= send("#{OPPOSITELINEAGE[lineage]}_half_siblings") # other lineage half siblings would become full siblings so they cannot be current lineage half sibling
-          ineligibles |= gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all_with(parent)
+          ineligibles |= gclass.all_with(role: parent, scoped_at_val: self.send("#{gclass.scoped_at}"))
         end
         if gclass.ineligibility_level >= PEDIGREE_AND_DATES
           if p

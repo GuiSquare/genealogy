@@ -41,7 +41,7 @@ def connect_to_database
   ActiveRecord::Base.establish_connection(db_config)
 end
 
-def get_test_model has_parents_opts
+def get_test_model has_parents_opts = {}
 
   klass = Class.new(ActiveRecord::Base) do
     self.table_name = 'test_records'
@@ -76,7 +76,7 @@ def get_test_model has_parents_opts
   # puts "defining #{klass_name} (with options #{has_parents_opts}) as ActiveRecord version #{Gem::Specification.find_by_name('activerecord').version.to_s} "
   Genealogy.const_set klass_name, klass
 
-  klass.has_parents has_parents_opts = { scoped_at: :group_id }
+  klass.has_parents has_parents_opts.merge!(scoped_at: :group_id)
 
   # db setup
   cn = ActiveRecord::Base.connection

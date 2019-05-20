@@ -51,7 +51,7 @@ module Genealogy
     # @return [ActiveRecord::Relation] children
     def children(options = {})
       raise SexError, "Sex value not valid for #{self}. It's needed to look for children" unless gclass.sex_values.include? sex_before_type_cast
-      result = gclass.where("#{SEX2PARENT[ssex]}_id" => self)
+      result = gclass.where("#{SEX2PARENT[ssex]}_id" => self).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
       if options.keys.include? :spouse
         check_indiv(spouse = options[:spouse],opposite_ssex)
         result = result.where("#{SEX2PARENT[opposite_ssex]}_id" => spouse ) if spouse
@@ -61,7 +61,7 @@ module Genealogy
 
     # @return [ActiveRecord::Relation] list of individuals with whom has had children
     def spouses
-      gclass.where(id: children.pluck("#{SEX2PARENT[opposite_ssex]}_id".to_sym).compact.uniq)
+      gclass.where(id: children.pluck("#{SEX2PARENT[opposite_ssex]}_id".to_sym).compact.uniq).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
     end
 
     # @param [Hash] options
@@ -73,12 +73,12 @@ module Genealogy
     # @return [ActiveRecord::Relation] list of fullsiblings and/or halfsiblings
     def siblings(options = {})
       spouse = options[:spouse]
-      result = gclass.where("id != ?",id)
+      result = gclass.where("id != ?",id).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
       case options[:half]
       when nil # only full siblings
-        result.all_with(:parents).where(father_id: father, mother_id: mother)
+        result.all_with(role: :parents, scoped_at_val: self.send("#{gclass.scoped_at}")).where(father_id: father, mother_id: mother)
       when :father # common father
-        result = result.all_with(:father).where(father_id: father)
+        result = result.all_with(role: :father, scoped_at_val: self.send("#{gclass.scoped_at}")).where(father_id: father)
         if spouse
           check_indiv(spouse, :female)
           result.where(mother_id: spouse)
@@ -88,7 +88,7 @@ module Genealogy
           result
         end
       when :mother # common mother
-        result = result.all_with(:mother).where(mother_id: mother)
+        result = result.all_with(role: :mother, scoped_at_val: self.send("#{gclass.scoped_at}")).where(mother_id: mother)
         if spouse
           check_indiv(spouse, :male)
           result.where(father_id: spouse)
@@ -212,17 +212,17 @@ module Genealogy
         parents
       end
       ids = relation.compact.inject([]){|memo,parent| memo |= parent.siblings(half: options[:half]).pluck(:id)}
-      gclass.where(id: ids)
+      gclass.where(id: ids).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
     end
 
     # @see #uncles_and_aunts
     def uncles(options = {})
-      uncles_and_aunts(options).males
+      uncles_and_aunts(options).males(scoped_at_val:  self.send("#{gclass.scoped_at}"))
     end
 
     # @see #uncles_and_aunts
     def aunts(options = {})
-      uncles_and_aunts(options).females
+      uncles_and_aunts(options).females(scoped_at_val:  self.send("#{gclass.scoped_at}"))
     end
 
     # @see #uncles_and_aunts
@@ -264,12 +264,12 @@ module Genealogy
 
     # @see #nieces_and_nephews
     def nephews(options = {})
-      nieces_and_nephews.males
+      nieces_and_nephews.males(scoped_at_val: self.send("#{gclass.scoped_at}"))
     end
 
     # @see #nieces_and_nephews
     def nieces(options = {})
-      nieces_and_nephews.females
+      nieces_and_nephews.females(scoped_at_val: self.send("#{gclass.scoped_at}"))
     end
 
     # family hash with roles as keys? :spouse and individuals as values. Defaults roles are :father, :mother, :children, :siblings and current_spouse if enabled
@@ -322,24 +322,24 @@ module Genealogy
     module ClassMethods
       # all male individuals
       # @return [ActiveRecord::Relation]
-      def males
-        where(sex: sex_male_value)
+      def males(scoped_at_val:)
+        where(sex: sex_male_value).where("#{self.scoped_at}": scoped_at_val)
       end
       # all female individuals
       # @return [ActiveRecord::Relation]
-      def females
-        where(sex: sex_female_value)
+      def females(scoped_at_val:)
+        where(sex: sex_female_value).where("#{self.scoped_at}": scoped_at_val)
       end
       # all individuals individuals having relative with specified role
       # @return [ActiveRecord, ActiveRecord::Relation]
-      def all_with(role)
+      def all_with(role: , scoped_at_val:)
         case role
         when :father
-          where('father_id is not ?',nil)
+          where('father_id is not ?',nil).where("#{self.scoped_at}": scoped_at_val)
         when :mother
-          where('mother_id is not ?',nil)
+          where('mother_id is not ?',nil).where("#{self.scoped_at}": scoped_at_val)
         when :parents
-          where('father_id is not ? and mother_id is not ?',nil,nil)
+          where('father_id is not ? and mother_id is not ?',nil,nil).where("#{self.scoped_at}": scoped_at_val)
         end
       end
 

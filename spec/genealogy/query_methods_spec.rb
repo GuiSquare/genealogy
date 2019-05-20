@@ -6,29 +6,63 @@ describe "*** Query methods (based on spec/genealogy/sample_pedigree*.pdf files)
   include_context "pedigree exists"
 
   describe "class methods" do
-    describe ".males" do
-      specify do
-        all_males = [ruben, paul, peter, paso, manuel, john, jack, bob, tommy, luis, larry, ned, steve, marcel, julian, rud, mark, sam, charlie]
-        expect(@model.males.all).to match_array all_males
+
+    context "in family 1" do
+
+      describe ".males" do
+        specify do
+          all_males = [ruben, paul, peter, paso, manuel, john, jack, bob, tommy, luis, larry, ned, steve, marcel, julian, rud, mark, sam, charlie]
+          expect(@model.males(scoped_at_val:1).all).to match_array all_males
+        end
       end
+      describe ".females" do
+        specify do
+          all_females = [titty, mary, barbara, irene, terry, debby, alison, maggie, emily, rosa, louise, naomi, michelle, beatrix, mia, sue]
+          expect(@model.females(scoped_at_val:1).all).to match_array all_females
+        end
+      end
+      describe ".all_with" do
+        context 'with argument :father' do
+          specify { expect(@model.all_with(role: :father, scoped_at_val: 1)).to match_array [irene, beatrix, julian, mary, peter, ruben, steve, mark, rud, titty, michelle, charlie, sam, sue, terry, paul, emily, tommy, barbara, john, paso, debby, jack] }
+        end
+        context 'with argument :mother' do
+          specify { expect(@model.all_with(role: :mother, scoped_at_val: 1)).to match_array [john, paso, mary, irene, mark, rud, titty, debby, jack, tommy, barbara, charlie, sam, sue, beatrix, julian, michelle, emily, paul, peter, steve] }
+        end
+        context 'with argument :parents' do
+          specify { expect(@model.all_with(role: :parents, scoped_at_val: 1)).to match_array [john, paso, mary, irene, mark, rud, titty, debby, jack, tommy, barbara, charlie, sam, sue, beatrix, julian, michelle, emily, paul, peter, steve] }
+        end
+      end
+
+    context "in family 2" do 
+      describe ".males" do
+        specify do
+          all_males = [henry,max]
+          expect(@model.males(scoped_at_val:2).all).to match_array all_males
+        end
+      end
+
+      describe ".females" do
+        specify do
+          all_females = [caroline]
+          expect(@model.females(scoped_at_val:2).all).to match_array all_females
+        end
+      end
+
+      describe ".all_with" do
+        context 'with argument :father' do
+          specify { expect(@model.all_with(role: :father, scoped_at_val: 2)).to match_array [max] }
+        end
+        context 'with argument :mother' do
+          specify { expect(@model.all_with(role: :mother, scoped_at_val: 2)).to match_array [max] }
+        end
+        context 'with argument :parents' do
+          specify { expect(@model.all_with(role: :parents, scoped_at_val: 2)).to match_array [max] }
+        end
+      end
+
+
     end
-    describe ".females" do
-      specify do
-        all_females = [titty, mary, barbara, irene, terry, debby, alison, maggie, emily, rosa, louise, naomi, michelle, beatrix, mia, sue]
-        expect(@model.females.all).to match_array all_females
-      end
-    end
-    describe ".all_with" do
-      context 'with argument :father' do
-        specify { expect(@model.all_with(:father)).to match_array [irene, beatrix, julian, mary, peter, ruben, steve, mark, rud, titty, michelle, charlie, sam, sue, terry, paul, emily, tommy, barbara, john, paso, debby, jack] }
-      end
-      context 'with argument :mother' do
-        specify { expect(@model.all_with(:mother)).to match_array [john, paso, mary, irene, mark, rud, titty, debby, jack, tommy, barbara, charlie, sam, sue, beatrix, julian, michelle, emily, paul, peter, steve] }
-      end
-      context 'with argument :parents' do
-        specify { expect(@model.all_with(:parents)).to match_array [john, paso, mary, irene, mark, rud, titty, debby, jack, tommy, barbara, charlie, sam, sue, beatrix, julian, michelle, emily, paul, peter, steve] }
-      end
-    end
+   end
   end
 
   describe "peter" do

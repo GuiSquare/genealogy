@@ -35,7 +35,11 @@ shared_context 'unreleted people exist' do
     {group_id: 1, name: "sue", sex: "F"},
     {group_id: 1, name: "terry", sex: "F"},
     {group_id: 1, name: "titty", sex: "F"},
-    {group_id: 1, name: "tommy", sex: "M"}
+    {group_id: 1, name: "tommy", sex: "M"},
+
+    {group_id: 2, name: "henry", sex: "M"},
+    {group_id: 2, name: "caroline", sex: "F"},
+    {group_id: 2, name: "max", sex: "M"}
   ]
   people.each{|person| let(person[:name]) { @model.find_by(name: person[:name])} }
 
@@ -78,6 +82,9 @@ shared_context 'connect people' do
       paso.update_attributes(current_spouse_id: irene.id )
       paul.update_attributes(current_spouse_id: michelle.id)
     end
+
+    max.update_attributes(father_id:henry.id, mother_id: caroline.id)
+
   end
 end
 
