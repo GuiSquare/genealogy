@@ -1,3 +1,5 @@
+# EXPETIMENTAL SCOPING FEATURE
+
 # Genealogy
 
 [![Build Status](https://travis-ci.org/masciugo/genealogy.svg?branch=master)](https://travis-ci.org/masciugo/genealogy)
