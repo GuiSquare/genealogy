@@ -163,9 +163,9 @@ module Genealogy
         if gclass.ineligibility_level >= PEDIGREE
           if ineligibles = self.send("ineligible_#{relationship.to_s.pluralize}")
             # puts "[#{__method__}]: checking if #{relative} can be #{relationship} of #{self}"
-            raise IncompatibleRelationshipException, "#{relative} can't be #{relationship} of #{self}" if ineligibles.include? relative
+            raise IncompatibleRelationshipException, "#{relative&.name} can't be #{relationship} of #{self&.name}" if ineligibles.include? relative
           else
-            raise IncompatibleRelationshipException, "#{self} already has #{relationship}"
+            raise IncompatibleRelationshipException, "#{self&.name} already has #{relationship}"
           end
         end
       end
