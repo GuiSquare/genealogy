@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
   when /^2/
     "byebug"
   else
-    raise
+    # raise
   end
 
 
