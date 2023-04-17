@@ -16,7 +16,7 @@ module Genealogy
       define_method "ineligible_#{parent_role}s" do
         unless self.send(parent_role)
           ineligibles = []
-          ineligibles |= descendants | [self] | gclass.send("#{unexpected_sex}s", { scoped_at_val: self.send("#{gclass.scoped_at}")}) if gclass.ineligibility_level >= PEDIGREE
+          ineligibles |= descendants | [self] | gclass.send("#{unexpected_sex}s", scoped_at_val: self.send("#{gclass.scoped_at}")) if gclass.ineligibility_level >= PEDIGREE
           if gclass.ineligibility_level >= PEDIGREE_AND_DATES  and birth_range
             ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
               !indiv.can_procreate_during?(birth_range)
@@ -44,7 +44,7 @@ module Genealogy
           if parent = send(parent_role)
             ineligibles |= parent.send("ineligible_#{grandparent2parent_role}s")
           elsif gclass.ineligibility_level >= PEDIGREE
-            ineligibles |= descendants | siblings | [self] | gclass.send("#{unexpected_sex}s", { scoped_at_val: self.send("#{gclass.scoped_at}")})
+            ineligibles |= descendants | siblings | [self] | gclass.send("#{unexpected_sex}s", scoped_at_val: self.send("#{gclass.scoped_at}"))
             if gclass.ineligibility_level >= PEDIGREE_AND_DATES
               ineligibles |= (gclass.where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}")).all - ineligibles).find_all do |indiv|
                 !indiv.can_procreate_during?(send("#{parent_role}_birth_range"))
