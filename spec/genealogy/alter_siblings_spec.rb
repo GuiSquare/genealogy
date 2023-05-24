@@ -20,11 +20,11 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
       context 'when receiver has not parents' do
         subject { peter.add_siblings(steve) }
         context 'when argument has already the parents' do
-          before { steve.update_attributes(father_id: paul.id, mother_id: titty.id) }
+          before { steve.update(father_id: paul.id, mother_id: titty.id) }
           it_behaves_like "raising error and not affecting the trio", Genealogy::LineageGapException, [:steve,:paul,:titty]
         end
         context 'when argument has only one parent' do
-          before { steve.update_attributes(father_id: paul.id) }
+          before { steve.update(father_id: paul.id) }
           it_behaves_like "raising error and not affecting the trio", Genealogy::LineageGapException, [:steve,:paul,nil]
         end
         context 'when argument has not parents' do
@@ -34,7 +34,7 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
 
       context "when receiver has parents" do
 
-        before { peter.update_attributes(father_id: paul.id, mother_id: titty.id) }
+        before { peter.update(father_id: paul.id, mother_id: titty.id) }
 
         subject { peter.add_siblings(steve) }
         it { is_expected.to be true }
@@ -60,7 +60,7 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
         end
 
         context "when argument is already a receiver's sibling" do
-          before { steve.update_attributes(father_id: paul.id, mother_id: titty.id) }
+          before { steve.update(father_id: paul.id, mother_id: titty.id) }
           it_behaves_like "raising error and not affecting the trio", Genealogy::IncompatibleRelationshipException, [:steve,:paul,:titty]
         end
 
@@ -113,8 +113,8 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
       context 'when receiver has some full siblings, paternal and maternal half siblings ' do
         include_context "connect people" do
           before {
-            sue.update_attributes(father_id: paul.id, mother_id: titty.id) # extra full sibling
-            rud.update_attributes(father_id: nil, mother_id: titty.id) # extra maternal half sibling
+            sue.update(father_id: paul.id, mother_id: titty.id) # extra full sibling
+            rud.update(father_id: nil, mother_id: titty.id) # extra maternal half sibling
           }
         end
         it { is_expected.to be true }
@@ -193,7 +193,7 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
 
     describe '#add_paternal_half_siblings' do
       context 'when receiver has parents' do
-        before { peter.update_attributes(father_id: paul.id, mother_id: titty.id) }
+        before { peter.update(father_id: paul.id, mother_id: titty.id) }
         subject { peter.add_paternal_half_siblings(steve) }
         it { is_expected.to be true }
         it "argument and receiver become half siblings" do
@@ -203,8 +203,8 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
       end
       context "when argument is ineligible" do
         before {
-          paul.update_attributes(father_id: manuel.id, mother_id: terry.id)
-          mark.update_attributes(father_id: paso.id)
+          paul.update(father_id: manuel.id, mother_id: terry.id)
+          mark.update(father_id: paso.id)
         }
         subject { paul.add_paternal_half_siblings(mark) }
         it_behaves_like "raising error and not affecting the trio", Genealogy::IncompatibleRelationshipException, [:mark,:paso,nil]
@@ -213,7 +213,7 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
 
     describe '#add_maternal_half_siblings' do
       context 'when receiver has parents' do
-        before { peter.update_attributes(father_id: paul.id, mother_id: titty.id) }
+        before { peter.update(father_id: paul.id, mother_id: titty.id) }
         subject { peter.add_maternal_half_siblings(steve) }
         it { is_expected.to be true }
         it "argument and receiver become half siblings" do
@@ -305,7 +305,7 @@ describe "*** Alter siblings methods ***", :done, :alter_s do
       describe "#add_siblings" do
         include_context 'unreleted people exist' do
           before {
-            peter.update_attributes(father_id: paul.id, mother_id: titty.id)
+            peter.update(father_id: paul.id, mother_id: titty.id)
             steve.mark_invalid!
           }
         end

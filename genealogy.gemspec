@@ -1,49 +1,52 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$:.unshift File.expand_path('../lib', __FILE__)
-require 'genealogy/version'
+require_relative "lib/genealogy/version"
 
-Gem::Specification.new do |s|
-  s.name          = "genealogy"
-  s.version       = Genealogy::VERSION
-  s.authors       = ["masciugo"]
-  s.email         = ["masciugo@gmail.com"]
-  s.homepage      = "https://github.com/masciugo/genealogy"
-  s.summary       = "Make ActiveRecord model act as a pedigree"
-  s.description   = "Genealogy is a ruby gem library which extends ActiveRecord models in order to make its instances act as relatives so that you can build and query genealogies"
+Gem::Specification.new do |spec|
+  spec.name = "genealogy"
+  spec.version = Genealogy::VERSION
+  spec.authors = ["masciugo","kjakub"]
+  spec.email = ["masciugo@gmail.com", "jakub.kuchar@hotmail.com"]
 
-  s.files         = `git ls-files app lib`.split("\n")
-  s.platform      = Gem::Platform::RUBY
-  s.require_paths = ['lib']
-  s.rubyforge_project = '[none]'
-  s.date        = Time.now
-  s.licenses    = ["MIT"]
+  spec.homepage      = "https://github.com/masciugo/genealogy"
+  spec.summary       = "Make ActiveRecord model act as a pedigree"
+  spec.description   = "Genealogy is a ruby gem library which extends ActiveRecord models in order to make its instances act as relatives so that you can build and query genealogies"
 
-  s.add_dependency('activerecord', '> 4.0')
-  s.add_dependency('activesupport', '> 4.0')
+  spec.license = "MIT"
+  spec.required_ruby_version = ">= 3.0.0"
 
-  s.add_development_dependency 'sqlite3'
-  s.add_development_dependency 'mysql2'
-  s.add_development_dependency 'pg'
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec', '~> 3.0'
-  s.add_development_dependency 'rspec-its'
-  s.add_development_dependency 'simplecov'
-  s.add_development_dependency 'database_cleaner'
-  s.add_development_dependency 'yard'
-  s.add_development_dependency 'redcarpet'
-  s.add_development_dependency 'github-markup'
-  s.add_development_dependency 'gem-release'
-  s.add_development_dependency 'appraisal'
+  spec.metadata["allowed_push_host"] = "Set to your gem server 'https://example.com'"
 
-  s.add_development_dependency case RUBY_VERSION
-  when /^1.9/
-    "debugger"
-  when /^2/
-    "byebug"
-  else
-    # raise
+  spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = "https://github.com/masciugo/genealogy"
+  spec.metadata["changelog_uri"] = "https://github.com/masciugo/genealogy"
+
+  # Specify which files should be added to the gem when it is released.
+  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  spec.files = Dir.chdir(__dir__) do
+    `git ls-files -z`.split("\x0").reject do |f|
+      (File.expand_path(f) == __FILE__) || f.start_with?(*%w[bin/ test/ spec/ features/ .git .circleci appveyor])
+    end
   end
+  #spec.bindir = "exe"
+  #spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
+  #spec.require_paths = ["lib"]
 
+  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'debug'
+  spec.add_development_dependency 'mysql2'
+  spec.add_development_dependency 'pg'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rspec-its'
+  spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'database_cleaner'
+  spec.add_development_dependency 'yard'
+  spec.add_development_dependency 'redcarpet'
+  spec.add_development_dependency 'github-markup'
+  spec.add_development_dependency 'gem-release'
+  spec.add_development_dependency 'appraisal'
 
+  # For more information and examples about making a new gem, check out our
+  # guide at: https://bundler.io/guides/creating_gem.html
 end

@@ -21,14 +21,14 @@ describe "*** Alter parents methods ***", :done, :alter_p  do
         end
         context 'when passing an ineligible individual, for example a descendant' do
           before { 
-            paul.update_attributes(father_id: manuel.id) 
-            julian.update_attributes(father_id: paul.id) 
+            paul.update(father_id: manuel.id) 
+            julian.update(father_id: paul.id) 
           }
           specify { expect { manuel.add_father(julian) }.to raise_error Genealogy::IncompatibleRelationshipException }
         end
       end
       context 'when father is already set' do
-        before { peter.update_attributes(father_id: paul.id) }
+        before { peter.update(father_id: paul.id) }
         specify { expect { peter.add_father(paso) }.to raise_error Genealogy::IncompatibleRelationshipException }
       end
     end
@@ -46,19 +46,19 @@ describe "*** Alter parents methods ***", :done, :alter_p  do
           specify { expect { peter.add_mother(john) }.to raise_error(Genealogy::IncompatibleRelationshipException) }
         end
         context 'when mother is already set' do
-          before { peter.update_attributes(mother_id: titty.id) }
+          before { peter.update(mother_id: titty.id) }
           specify { expect { peter.add_mother(titty) }.to raise_error Genealogy::IncompatibleRelationshipException }
         end
         context 'when argument is an ineligible individual, for example a descendant' do
           before { 
-            paul.update_attributes(father_id: manuel.id) 
-            beatrix.update_attributes(father_id: paul.id) 
+            paul.update(father_id: manuel.id) 
+            beatrix.update(father_id: paul.id) 
           }
           specify { expect { manuel.add_mother(beatrix) }.to raise_error Genealogy::IncompatibleRelationshipException }
         end
       end
       context 'when mother is already set' do
-        before { peter.update_attributes(mother_id: titty.id) }
+        before { peter.update(mother_id: titty.id) }
         specify { expect { peter.add_mother(irene) }.to raise_error Genealogy::IncompatibleRelationshipException }
       end
     end

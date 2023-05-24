@@ -1,23 +1,16 @@
 ---
 language: ruby
 rvm:
-  - 1.9.3
-  - 2.5.1
+  - 3.0.0
+  - 3.1.2
 gemfile:
-  - gemfiles/rails_4.gemfile
-  - gemfiles/rails_5.gemfile
+  - gemfiles/rails_6.gemfile
+  - gemfiles/rails_7.gemfile
 env:
   - GENEALOGY_TEST_DB=mysql
   - GENEALOGY_TEST_DB=postgres
 matrix:
-  exclude:
-    - rvm: 1.9.3
-      gemfile: gemfiles/rails_5.gemfile
-  # fast_finish: true
-  allow_failures:
-    - rvm: 2.5.1
-      gemfile: gemfiles/rails_4.gemfile
-
+  fast_finish: true
 before_script:
   - mysql -e 'create database genealogy_test;'
   - psql -c 'create database genealogy_test;' -U postgres

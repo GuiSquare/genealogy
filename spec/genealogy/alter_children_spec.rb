@@ -2,10 +2,10 @@ require 'spec_helper'
 
 shared_context 'paul has some children' do
   before do
-    peter.update_attributes(father_id: paul.id, mother_id: titty.id)
-    steve.update_attributes(father_id: paul.id, mother_id: titty.id)
-    julian.update_attributes(father_id: paul.id, mother_id: michelle.id)
-    ruben.update_attributes(father_id: paul.id)
+    peter.update(father_id: paul.id, mother_id: titty.id)
+    steve.update(father_id: paul.id, mother_id: titty.id)
+    julian.update(father_id: paul.id, mother_id: michelle.id)
+    ruben.update(father_id: paul.id)
   end
 end
 
