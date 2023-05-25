@@ -2,7 +2,13 @@
 
 # Genealogy
 
-[![Build Status](https://travis-ci.org/masciugo/genealogy.svg?branch=master)](https://travis-ci.org/masciugo/genealogy)
+[![Ruby](https://github.com/kjakub/genealogy/actions/workflows/main.yml/badge.svg?branch=ruby3)](https://github.com/kjakub/genealogy/actions/workflows/main.yml)
+
+
+## This is fork with extension to support scope column : example `scoped_at: :group_id`
+
+
+    `has_parents current_spouse: true, scoped_at: :group_id, column_names: { birth_date: 'birth_date', death_date: 'death_date' }, sex_values: VALID_GENDERS`
 
 ## Description
 
