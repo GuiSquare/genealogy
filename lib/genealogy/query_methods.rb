@@ -335,11 +335,11 @@ module Genealogy
       def all_with(role: , scoped_at_val:)
         case role
         when :father
-          where('father_id is not ?',nil).where("#{self.scoped_at}": scoped_at_val)
+          where.not(father_id: nil).where("#{self.scoped_at}": scoped_at_val)
         when :mother
-          where('mother_id is not ?',nil).where("#{self.scoped_at}": scoped_at_val)
+          where.not(mother_id: nil).where("#{self.scoped_at}": scoped_at_val)
         when :parents
-          where('father_id is not ? and mother_id is not ?',nil,nil).where("#{self.scoped_at}": scoped_at_val)
+          where.not(father_id: nil).where.not(mother_id: nil).where("#{self.scoped_at}": scoped_at_val)
         end
       end
 
