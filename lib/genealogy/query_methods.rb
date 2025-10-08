@@ -73,7 +73,7 @@ module Genealogy
     # @return [ActiveRecord::Relation] list of fullsiblings and/or halfsiblings
     def siblings(options = {})
       spouse = options[:spouse]
-      result = gclass.where("id != ?",id).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
+      result = gclass.where.not(id: id).where("#{gclass.scoped_at}": self.send("#{gclass.scoped_at}"))
       case options[:half]
       when nil # only full siblings
         result.all_with(role: :parents, scoped_at_val: self.send("#{gclass.scoped_at}")).where(father_id: father, mother_id: mother)
@@ -83,7 +83,7 @@ module Genealogy
           check_indiv(spouse, :female)
           result.where(mother_id: spouse)
         elsif mother
-          result.where("mother_id != ? or mother_id is ?", mother_id, nil)
+          result.where.not(mother_id: mother_id).or(result.where(mother_id: nil))
         else
           result
         end
@@ -93,7 +93,7 @@ module Genealogy
           check_indiv(spouse, :male)
           result.where(father_id: spouse)
         elsif father
-          result.where("father_id != ? or father_id is ?", father_id, nil)
+          result.where.not(father_id: father_id).or(result.where(father_id: nil))
         else
           result
         end
@@ -101,7 +101,7 @@ module Genealogy
         ids = siblings(half: :father).pluck(:id) | siblings(half: :mother).pluck(:id)
         result.where(id: ids)
       when :include # including half siblings
-        result.where("father_id = ? or mother_id = ?", father_id, mother_id)
+        result.where(father_id: father_id).or(result.where(mother_id: mother_id))
       else
         raise ArgumentError, "Admitted values for :half options are: :father, :mother, false, true or nil"
       end
