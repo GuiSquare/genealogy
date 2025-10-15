@@ -83,7 +83,7 @@ module Genealogy
           check_indiv(spouse, :female)
           result.where(mother_id: spouse)
         elsif mother
-          result.where.not(mother_id: mother_id).or(result.where(mother_id: nil))
+          result.where("mother_id != ? or mother_id is NULL", mother_id)
         else
           result
         end
@@ -93,7 +93,7 @@ module Genealogy
           check_indiv(spouse, :male)
           result.where(father_id: spouse)
         elsif father
-          result.where.not(father_id: father_id).or(result.where(father_id: nil))
+          result.where("father_id != ? or father_id is NULL", father_id)
         else
           result
         end
@@ -101,7 +101,7 @@ module Genealogy
         ids = siblings(half: :father).pluck(:id) | siblings(half: :mother).pluck(:id)
         result.where(id: ids)
       when :include # including half siblings
-        result.where(father_id: father_id).or(result.where(mother_id: mother_id))
+        result.where("father_id = ? or mother_id = ?", father_id, mother_id)
       else
         raise ArgumentError, "Admitted values for :half options are: :father, :mother, false, true or nil"
       end
