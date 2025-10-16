@@ -101,7 +101,15 @@ module Genealogy
         ids = siblings(half: :father).pluck(:id) | siblings(half: :mother).pluck(:id)
         result.where(id: ids)
       when :include # including half siblings
-        result.where("father_id = ? or mother_id = ?", father_id, mother_id)
+        if !father_id && !mother_id
+          result.none
+        elsif !father_id
+          result.where(mother_id: mother_id)
+        elsif !mother_id
+          result.where(father_id: father_id)
+        else
+          result.where("father_id = ? or mother_id = ?", father_id, mother_id)
+        end
       else
         raise ArgumentError, "Admitted values for :half options are: :father, :mother, false, true or nil"
       end
